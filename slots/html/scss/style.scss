@@ -137,8 +137,8 @@ body {
       position: relative;
       display: flex;
       align-items: center;
-      justify-content: center;
-      width: 49.143vw;
+      // justify-content: center;
+      width: 51.143vw;
       height: 20.624vw;
       background: radial-gradient(
         157.89% 106.56% at 37.86% -41.04%,
@@ -150,40 +150,118 @@ body {
       z-index: 3;
 
       .wheels_wrapper {
+        margin-left: 4vw;
         display: flex;
         flex-wrap: nowrap;
-        column-gap: 3.578vw;
+        column-gap: 2.578vw;
 
         .wheel {
-          width: 12.105vw;
-          height: 17.058vw;
+          position: relative;
+          width: 11.105vw;
+          height: 16.058vw;
           background: rgba(230, 230, 230, 0.2);
-          box-shadow: inset 0px 0.208vw 4.167vw rgba(0, 0, 0, 0.28);
+          box-shadow: inset 0vw 0.208vw 4.167vw rgba(0, 0, 0, 0.28);
           border-radius: 4.479vw;
+          overflow: hidden;
+
+          .inside {
+            width: 100%;
+            height: calc(100% * 5);
+            position: absolute;
+            display: grid;
+            grid-template-columns: 1fr;
+            justify-content: center;
+            top: 0%;
+
+            img {
+              margin: auto;
+              width: 4.344vw;
+              height: 5.344vw;
+            }
+          }
+
+          @keyframes spin {
+            0% {
+              transform: translateY(0);
+            }
+            100% {
+              transform: translateY(-100%);
+            }
+          }
         }
       }
     }
 
-    .lever_wrapper {
+    .slot_button_wrapper {
       position: relative;
-      display: block;
-      border: 1px solid red;
+      // height: 2.604vw;
+      width: 5vw;
+      margin-left: 1.902vw;
 
-      .lever_base {
-        width: 8.558vw;
-        height: 17.235vw;
-        background-image: url("../assets/lever_base.svg");
-        object-fit: cover;
-        background-repeat: no-repeat;
+      .spin_btn {
+        appearance: button;
+        background-color: #1899d6;
+        border: solid transparent;
+        border-radius: 0.833vw;
+        border-width: 0 0 0.208vw;
+        box-sizing: border-box;
+        color: #ffffff;
+        cursor: pointer;
+        display: inline-block;
+        font-family: din-round, sans-serif;
+        font-size: 0.781vw;
+        font-weight: 700;
+        letter-spacing: 0.042vw;
+        line-height: 1.042vw;
+        margin: 0;
+        outline: none;
+        overflow: visible;
+        padding: 0.677vw 0.833vw;
+        text-align: center;
+        text-transform: uppercase;
+        touch-action: manipulation;
+        transform: translateZ(0);
+        transition: filter 0.2s;
+        user-select: none;
+        -webkit-user-select: none;
+        vertical-align: middle;
+        white-space: nowrap;
+        width: 100%;
+      }
+
+      .spin_btn:after {
+        background-clip: padding-box;
+        background-color: #1cb0f6;
+        border: solid transparent;
+        border-radius: 0.833vw;
+        border-width: 0 0 0.208vw;
+        bottom: -0.208vw;
+        content: "";
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: -1;
+      }
+
+      .spin_btn:main,
+      .spin_btn:focus {
+        user-select: auto;
+      }
+
+      .spin_btn:hover:not(:disabled) {
+        filter: brightness(1.1);
+        -webkit-filter: brightness(1.1);
+      }
+
+      .spin_btn:disabled {
+        cursor: auto;
+      }
+
+      .spin_btn:active {
+        border-width: 0.208vw 0 0;
+        background: none;
       }
     }
   }
-}
-
-#lever {
-  position: absolute;
-  top: 5.208vw; /* Adjust based on your layout */
-  right: 5.208vw; /* Adjust based on your layout */
-  transform-origin: top right;
-  transition: transform 0.3s ease-in-out;
 }
