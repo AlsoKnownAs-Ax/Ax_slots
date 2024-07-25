@@ -12,7 +12,7 @@ var slotsApp = new Vue({
       "./assets/icons/watch.png",
     ],
     spinInterval: null,
-    spinDuration: 2000,
+    spinDuration: 1000,
     stopDuration: 1500,
     credits: 15,
     spinning: false,
