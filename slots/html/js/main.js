@@ -2,17 +2,9 @@ var slotsApp = new Vue({
   el: ".content",
   data: {
     show: true,
-    icons: [
-      "./assets/icons/crown.png",
-      "./assets/icons/umbrella.png",
-      "./assets/icons/like.png",
-      "./assets/icons/dumbell.png",
-      "./assets/icons/lock.png",
-      "./assets/icons/star.png",
-      "./assets/icons/watch.png",
-    ],
+    icons: config.elements.map((element) => `./assets/icons/${element.img}`),
     spinInterval: null,
-    spinDuration: 1000,
+    spinDuration: 1500,
     stopDuration: 1500,
     credits: 15,
     spinning: false,
@@ -47,79 +39,94 @@ var slotsApp = new Vue({
         inside.appendChild(fragment);
       });
     },
-    startSpin() {
+    async startSpin() {
       if (this.spinning) return;
 
       this.spinning = true;
-      this.generateElements();
       const insideElements = document.querySelectorAll(".inside");
       insideElements.forEach((inside) => {
-        inside.style.top = "0%"; // Start from the top
+        inside.style.bottom = "0%";
         inside.style.animation = `spin ${
           this.spinDuration / 1000
         }s linear infinite`;
       });
-      this.spinInterval = setInterval(() => {
-        insideElements.forEach((inside) => {
-          const currentDuration = parseFloat(
-            getComputedStyle(inside).animationDuration
-          );
-          inside.style.animationDuration = currentDuration - 0.1 + "s";
-          if (currentDuration <= 0.2) {
-            clearInterval(this.spinInterval);
-            this.stopSpin();
-          }
-        });
-      }, 100);
-      this.credits--;
-      this.updateCreditsDisplay();
+      // this.generateElements();
+
+      await this.spinWheels(insideElements);
+
+      setTimeout(() => {
+        this.stopSpin(insideElements);
+      }, 500);
     },
-    stopSpin() {
-      const insideElements = document.querySelectorAll(".inside");
-      insideElements.forEach((inside) => {
+    spinWheels(insideElements) {
+      return new Promise((resolve) => {
+        this.spinInterval = setInterval(() => {
+          let spinningReels = 0;
+
+          insideElements.forEach((inside) => {
+            const currentDuration = parseFloat(
+              getComputedStyle(inside).animationDuration
+            );
+            inside.style.animationDuration = currentDuration - 0.2 + "s";
+
+            if (currentDuration <= 0.2) {
+              spinningReels++;
+            }
+          });
+
+          if (spinningReels === insideElements.length) {
+            clearInterval(this.spinInterval);
+            resolve();
+          }
+        }, 100);
+      });
+    },
+    async stopSpin(insideElements) {
+      const promises = Array.from(insideElements).map((inside) => {
         inside.style.animation = "";
         const randomPosition =
           -100 * Math.floor(Math.random() * this.icons.length);
-
-        this.animateTransform(
+        return this.animateTransform(
           inside,
           randomPosition,
           this.stopDuration,
           "elasticOut"
         );
       });
-      setTimeout(() => {
-        this.spinning = false;
-        this.checkWinCondition();
-      }, this.stopDuration);
+
+      await Promise.all(promises);
+      this.spinning = false;
+      this.checkWinCondition();
     },
     animateTransform(element, targetPosition, duration, easing) {
-      const startPosition =
-        parseFloat(getComputedStyle(element).transform.split(",")[5]) || 0;
-      const changeInPosition = targetPosition - startPosition;
-      const startTime = performance.now();
-      const easingFunction = $.easing[easing];
+      return new Promise((resolve) => {
+        const startPosition =
+          parseFloat(getComputedStyle(element).transform.split(",")[5]) || 0;
+        const changeInPosition = targetPosition - startPosition;
+        const startTime = performance.now();
+        const easingFunction = $.easing[easing];
 
-      const animate = (currentTime) => {
-        const timeElapsed = currentTime - startTime;
-        const t = Math.min(timeElapsed / duration, 1);
-        const newPosition = easingFunction(
-          null,
-          t,
-          startPosition,
-          changeInPosition,
-          1
-        );
-        element.style.transform = `translateY(${newPosition}px)`;
+        const animate = (currentTime) => {
+          const timeElapsed = currentTime - startTime;
+          const t = Math.min(timeElapsed / duration, 1);
+          const newPosition = easingFunction(
+            null,
+            t,
+            startPosition,
+            changeInPosition,
+            1
+          );
+          element.style.transform = `translateY(${newPosition}px)`;
 
-        if (timeElapsed < duration) {
-          requestAnimationFrame(animate);
-        } else {
-          this.checkWinCondition();
-        }
-      };
+          if (timeElapsed < duration) {
+            requestAnimationFrame(animate);
+          } else {
+            resolve();
+          }
+        };
 
-      requestAnimationFrame(animate);
+        requestAnimationFrame(animate);
+      });
     },
     checkWinCondition() {},
     onMessage(event) {
@@ -150,7 +157,6 @@ var slotsApp = new Vue({
   },
 });
 
-// Easing functions from jQuery script
 $.extend($.easing, {
   bounceOut: function (x, t, b, c, d) {
     if ((t /= d) < 1 / 2.75) {

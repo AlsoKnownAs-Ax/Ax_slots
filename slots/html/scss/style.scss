@@ -171,7 +171,7 @@ body {
             display: grid;
             grid-template-columns: 1fr;
             justify-content: center;
-            top: 0%;
+            bottom: 0%;
 
             img {
               margin: auto;
@@ -185,7 +185,7 @@ body {
               transform: translateY(0);
             }
             100% {
-              transform: translateY(-100%);
+              transform: translateY(100%);
             }
           }
         }
