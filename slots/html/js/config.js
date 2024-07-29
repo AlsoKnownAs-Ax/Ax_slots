@@ -1,5 +1,6 @@
 const config = {
   useFairProbability: false, // This will automatically set a fair chance to each symbol
+  animation: "easeOut", //Available Animations: bounceOut, elasticOut, easeOut
 
   elements: [
     { id: 1, img: "watch.png", weight: 88.8889 }, // 88.8889%

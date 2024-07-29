@@ -65,10 +65,14 @@ var slotsApp = new Vue({
 
       setTimeout(() => {
         this.stopSpin(1, slotMatrix);
-        this.stopSpin(2, slotMatrix);
-        this.stopSpin(3, slotMatrix);
-        this.checkWinCondition(slotMatrix);
-      }, 500);
+        setTimeout(() => {
+          this.stopSpin(2, slotMatrix);
+          setTimeout(() => {
+            this.stopSpin(3, slotMatrix);
+            this.checkWinCondition(slotMatrix);
+          }, this.stopDuration / 3);
+        }, this.stopDuration / 3);
+      }, this.stopDuration / 3);
     },
     spinWheels(insideElements) {
       return new Promise((resolve) => {
@@ -131,7 +135,7 @@ var slotsApp = new Vue({
           reelElement,
           -100 * SKIPPED_ICONS,
           this.stopDuration,
-          "elasticOut"
+          config.animation
         ),
       ];
 
