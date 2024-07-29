@@ -171,7 +171,6 @@ body {
             display: grid;
             grid-template-columns: 1fr;
             justify-content: center;
-            bottom: 0%;
 
             img {
               margin: auto;
@@ -263,5 +262,21 @@ body {
         background: none;
       }
     }
+  }
+}
+
+.blink {
+  animation: blink-animation 1s linear infinite;
+}
+
+@keyframes blink-animation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }

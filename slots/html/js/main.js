@@ -1,3 +1,5 @@
+const SKIPPED_ICONS = 3;
+
 var slotsApp = new Vue({
   el: ".content",
   data: {
@@ -33,7 +35,8 @@ var slotsApp = new Vue({
 
         for (let i = 0; i < this.icons.length * 5; i++) {
           const img = document.createElement("img");
-          img.src = this.icons[i % this.icons.length];
+          const randomIndex = Math.floor(Math.random() * this.icons.length);
+          img.src = this.icons[randomIndex];
           fragment.appendChild(img);
         }
         inside.appendChild(fragment);
@@ -42,20 +45,29 @@ var slotsApp = new Vue({
     async startSpin() {
       if (this.spinning) return;
 
+      stopBlink("reel1");
+      stopBlink("reel2");
+      stopBlink("reel3");
+
       this.spinning = true;
       const insideElements = document.querySelectorAll(".inside");
       insideElements.forEach((inside) => {
+        inside.style.top = "";
         inside.style.bottom = "0%";
         inside.style.animation = `spin ${
           this.spinDuration / 1000
         }s linear infinite`;
       });
-      // this.generateElements();
+      this.generateElements();
 
+      const slotMatrix = generateSlotMatrix();
       await this.spinWheels(insideElements);
 
       setTimeout(() => {
-        this.stopSpin(insideElements);
+        this.stopSpin(1, slotMatrix);
+        this.stopSpin(2, slotMatrix);
+        this.stopSpin(3, slotMatrix);
+        this.checkWinCondition(slotMatrix);
       }, 500);
     },
     spinWheels(insideElements) {
@@ -81,22 +93,50 @@ var slotsApp = new Vue({
         }, 100);
       });
     },
-    async stopSpin(insideElements) {
-      const promises = Array.from(insideElements).map((inside) => {
-        inside.style.animation = "";
-        const randomPosition =
-          -100 * Math.floor(Math.random() * this.icons.length);
-        return this.animateTransform(
-          inside,
-          randomPosition,
+    getGeneratedElementsForReelID(reelID, slotMatrix) {
+      let valuesForReel = [];
+      const columnID = reelID - 1;
+
+      for (let row = 0; row < slotMatrix.length; row++) {
+        const element = slotMatrix[row][columnID];
+        valuesForReel.push(element);
+      }
+
+      return valuesForReel;
+    },
+    async stopSpin(reelID, slotMatrix) {
+      const reelElement = document.querySelector(`.reel${reelID}`);
+      const images = reelElement.querySelectorAll("img");
+
+      const generatedElements = this.getGeneratedElementsForReelID(
+        reelID,
+        slotMatrix
+      );
+
+      for (i = 0; i < generatedElements.length; i++) {
+        const element = images[i + SKIPPED_ICONS];
+        const targetPictureID = generatedElements[i] - 1;
+        const picturePath = this.icons[targetPictureID];
+
+        element.src = picturePath;
+      }
+
+      const targetPosition = -100 * i;
+      reelElement.style.transform = `translateY(${targetPosition}%)`;
+      reelElement.style.animation = "";
+      reelElement.style.top = "0%";
+
+      const promises = [
+        this.animateTransform(
+          reelElement,
+          -100 * SKIPPED_ICONS,
           this.stopDuration,
           "elasticOut"
-        );
-      });
+        ),
+      ];
 
       await Promise.all(promises);
       this.spinning = false;
-      this.checkWinCondition();
     },
     animateTransform(element, targetPosition, duration, easing) {
       return new Promise((resolve) => {
@@ -116,7 +156,8 @@ var slotsApp = new Vue({
             changeInPosition,
             1
           );
-          element.style.transform = `translateY(${newPosition}px)`;
+          const convertedPX = (newPosition / 1920) * 100;
+          element.style.transform = `translateY(${convertedPX}vw)`;
 
           if (timeElapsed < duration) {
             requestAnimationFrame(animate);
@@ -128,7 +169,22 @@ var slotsApp = new Vue({
         requestAnimationFrame(animate);
       });
     },
-    checkWinCondition() {},
+    checkWinCondition(slotMatrix) {
+      const middleRow = slotMatrix[1];
+
+      if (middleRow[0] === middleRow[1] && middleRow[1] === middleRow[2]) {
+        const win = config.getWinForElementID(middleRow[0]);
+
+        setTimeout(() => {
+          startBlink("reel1");
+          startBlink("reel2");
+          startBlink("reel3");
+        }, 1500);
+
+        return;
+      }
+    },
+
     onMessage(event) {
       let data = event.data;
 
@@ -142,11 +198,18 @@ var slotsApp = new Vue({
     },
     onKey(event) {
       var theKey = event.code;
+
+      if (theKey === "Space") {
+        this.startSpin();
+      }
+
       if (theKey == "Escape") {
         this.closeUI();
       }
     },
     closeUI() {
+      // this.show = false;
+      this.spinning = false;
       this.Post("slots", { act: "closeUI" });
     },
   },
@@ -190,9 +253,60 @@ $.extend($.easing, {
     );
   },
 });
+function startBlink(elementClass) {
+  const $element = $(`.${elementClass} img:nth-child(${SKIPPED_ICONS + 2})`);
+  if ($element.length) {
+    $element.addClass("blink");
 
-function blink(element) {
-  $(element).animate({ opacity: 0 }, 200, "linear", function () {
-    $(this).animate({ opacity: 1 }, 200);
-  });
+    setTimeout(() => {
+      stopBlink(elementClass);
+    }, 3000);
+  } else {
+    console.error("Element not found:", elementClass);
+  }
+}
+
+function stopBlink(elementClass) {
+  const $element = $(`.${elementClass} img:nth-child(${SKIPPED_ICONS + 2})`);
+  if ($element.length) {
+    $element.removeClass("blink");
+  } else {
+    console.error("Element not found:", elementClass);
+  }
+}
+
+function weightedRandomElement() {
+  const totalWeight = config.elements.reduce(
+    (sum, element) => sum + element.weight,
+    0
+  );
+  const threshold = Math.random() * totalWeight;
+  let cumulativeWeight = 0;
+  for (let element of config.elements) {
+    cumulativeWeight += element.weight;
+    if (cumulativeWeight >= threshold) {
+      return element;
+    }
+  }
+}
+
+function randomElement() {
+  const randomIndex = Math.floor(Math.random() * config.elements.length);
+  return config.elements[randomIndex];
+}
+
+function generateSlotMatrix() {
+  let matrix = [];
+  for (let i = 0; i < 3; i++) {
+    let row = [];
+    for (let j = 0; j < 3; j++) {
+      if (i === 1) {
+        row.push(weightedRandomElement().id);
+      } else {
+        row.push(randomElement().id);
+      }
+    }
+    matrix.push(row);
+  }
+  return matrix;
 }
