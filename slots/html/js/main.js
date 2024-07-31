@@ -70,6 +70,7 @@ var slotsApp = new Vue({
           setTimeout(() => {
             this.stopSpin(3, slotMatrix);
             this.checkWinCondition(slotMatrix);
+            this.spinning = false;
           }, this.stopDuration / 3);
         }, this.stopDuration / 3);
       }, this.stopDuration / 3);
@@ -140,7 +141,6 @@ var slotsApp = new Vue({
       ];
 
       await Promise.all(promises);
-      this.spinning = false;
     },
     animateTransform(element, targetPosition, duration, easing) {
       return new Promise((resolve) => {
