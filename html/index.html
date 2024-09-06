@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--=============== STYLE PRELOAD ===============-->
+    <link rel="preload" as="style" href="css/reset.css" />
+    <link rel="preload" as="style" href="css/style.min.css" />
+
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="./css/reset.css" />
+    <link rel="stylesheet" href="./css/style.min.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+    <title>Slots | --Ax-#0018 & axero44</title>
+  </head>
+  <body>
+    <div class="content" v-if="show">
+      <img src="./assets/left_splash.svg" alt="" class="left_splash" />
+      <div class="right_splash"></div>
+      <img src="./assets/coin.svg" alt="" class="coin left" />
+      <img src="./assets/coin.svg" alt="" class="coin top_right" />
+      <img src="./assets/coin.svg" alt="" class="coin bottom_right" />
+
+      <div class="top_wrapper">
+        <div class="dots"></div>
+        <div class="text_wrapper">
+          <div class="title">SLOTS</div>
+        </div>
+        <img src="./assets/star.svg" alt="" class="star" />
+      </div>
+
+      <div class="slot_wrapper">
+        <div class="slot_machine">
+          <div class="wheels_wrapper">
+            <div class="wheel">
+              <div class="inside reel1"></div>
+            </div>
+            <div class="wheel">
+              <div class="inside reel2"></div>
+            </div>
+            <div class="wheel">
+              <div class="inside reel3"></div>
+            </div>
+          </div>
+          <div class="slot_button_wrapper">
+            <button class="spin_btn" role="button" @click="startSpin">
+              Spin
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- <img src="./assets/lever.svg" alt="" id="lever" /> -->
+    </div>
+
+    <!--=============== JQUERY ===============-->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!--=============== MAIN JS ===============-->
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
