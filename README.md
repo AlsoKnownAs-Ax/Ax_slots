@@ -4,7 +4,7 @@ This is a simple slot machine game built using **HTML**, **CSS**, **SCSS**, and 
 
 ## Preview
 
-![Slot Machine Preview](./assets/preview.png)
+![Slot Machine Preview](./html/assets/preview.png)
 
 ## Features
 
